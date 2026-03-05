@@ -1,254 +1,118 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-  <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" />
-  <img src="https://img.shields.io/badge/Plotly-3b82f6?style=for-the-badge&logo=plotly&logoColor=white" />
-  <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" />
-  <img src="https://img.shields.io/badge/IATA-Standards-22c55e?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Streamlit-1.28+-FF4B4B?style=flat-square&logo=streamlit&logoColor=white" />
+  <img src="https://img.shields.io/badge/Plotly-5.15+-3b82f6?style=flat-square&logo=plotly&logoColor=white" />
+  <img src="https://img.shields.io/badge/IATA-Delay_Codes-22c55e?style=flat-square" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" />
 </p>
 
-<h1 align="center">✈️ AerOps AI</h1>
-<p align="center"><strong>Aviation Operations Intelligence & Predictive Delay Management Platform</strong></p>
-<p align="center"><em>Production-grade OCC dashboard for Airlines, MRO, and Ground Handling operations</em></p>
+# AerOps AI
 
-<p align="center">
-  <a href="#-overview">Overview</a> •
-  <a href="#-features">Features</a> •
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-architecture">Architecture</a> •
-  <a href="#-data-schema">Data Schema</a> •
-  <a href="#-deployment">Deployment</a>
-</p>
+**Real-time aviation operations intelligence for OCC, Crew Planning, and Network Operations.**
+
+Airlines lose $25B+ annually to flight delays. Most operations centers still react after the cascade starts — tracking delays in spreadsheets, manually coding IATA reasons, and identifying patterns after the damage is done. AerOps AI gives dispatch and network operations teams the early-warning layer they're missing.
 
 ---
 
-## 🎯 Overview
+## What it does
 
-**AerOps AI** is a real-time aviation operations intelligence platform built for **Operations Control Centers (OCC)**, **Crew Planning**, and **Route Management** teams. It turns raw flight operations data into actionable insights — catching delay cascades before they happen, surfacing crew performance gaps, and producing compliance-ready PDF reports.
+**Operations Control Center view** — live KPIs (OTP, critical delays, in-air count), hourly delay trend, IATA code breakdown, root cause ranking, and a filterable flight ops table. The full filter set (aircraft type, crew, route, status, delay category, delay severity) propagates instantly across every chart.
 
-### The Problem This Solves
+**Crew & Fleet Performance** — per-captain OTP scores, flight distribution, leaderboard with unique routes and turnaround stats. Useful for crew planners and chief pilots tracking training needs against actual performance data.
 
-Airlines lose **$25B+ annually** to flight delays. Most operations centers still rely on manual Excel tracking and reactive delay coding — they find out about problems after the cascade has already started. AerOps AI provides the early-warning system that's missing.
+**Route Analytics** — flight volume and status breakdown by city-pair across 52 routes. Identifies which routes are driving delay counts, which fleet types are underperforming on specific sectors, and where ground time is being eroded.
 
-### What Makes It Hire-Worthy
+**AI Alerts** — pattern detection against the current filtered dataset. Four alert types:
+- Routes exceeding 25% delay rate in the active period
+- Tail numbers with 3+ technical delay events (AOG risk indicator)
+- Crew members exceeding 40 flights in 30 days (duty time pressure)
+- Weather delay spikes — 10+ events in 7 days triggers IROPS flag
 
-This project demonstrates:
-- **Domain expertise** — IATA delay codes, OTP, IROPS, duty time regulations, block time, tail-number tracking
-- **Production-grade engineering** — NaN-safe pandas filters, session state management, modular render architecture, dynamic data generation, PDF export
-- **Real problem framing** — not a tutorial dashboard; built around actual airline operations workflows (OCC, CRM, Route Planning)
-- **Scale** — 54,000+ flight records, 52 routes, 600+ flights/day with realistic distributions
-
----
-
-## ✨ Features
-
-### 🛫 Operations Control Center (OCC)
-Real-time command center for dispatchers and duty managers:
-- **Live KPIs**: Total Flights, OTP %, Critical Delays (>60 min), In-Air count
-- **Delay Trend Charts**: Hourly and daily delay patterns with Plotly
-- **IATA Delay Code Breakdown**: Pie/bar charts by delay category
-- **Root Cause Analysis**: Ranked delay drivers with frequency and impact
-- **Flight Operations Table**: Searchable, filterable, color-coded by status
-
-### 👨‍✈️ Crew & Fleet Performance
-Analytics for crew planners and chief pilots:
-- **Individual OTP Scores**: Per-captain on-time performance percentages
-- **Route Proficiency Heatmap**: Crew performance by route matrix
-- **Fatigue Risk Flags**: Duty time and flight frequency indicators
-- **Aircraft Utilization**: Tail-number efficiency metrics
-- **Fleet Type Comparison**: Performance across aircraft types
-
-### 🌐 Route & Network Analytics
-Strategic view for network operations:
-- **Route Health Scores**: Delay rate and avg delay by city-pair (52 routes)
-- **Hub Congestion Map**: Delay concentration by origin airport
-- **Delay Distribution Histograms**: Statistical delay profile per route
-- **Aircraft-Route Matrix**: Efficiency heatmap across fleet and network
-
-### 🤖 AI Recommendations
-Pattern-driven automated alerts — no LLM needed:
-- **High Delay Route**: Routes exceeding 25% delay rate in last 30 days
-- **Recurring Tech Issue**: Tail numbers with 3+ technical delay events
-- **Crew Fatigue Risk**: Crew members exceeding 40 flights in 30 days
-- **Weather Impact Alert**: Airports with 10+ weather delays in last 7 days
-- **Confidence Scores**: Data-backed reliability indicators per alert
-
-### 📄 PDF Report Export
-One-click operational reports:
-- Executive KPI summary
-- Delay breakdown by IATA code
-- Top delay routes with impact analysis
-- Formatted for management briefings and compliance documentation
+**PDF Export** — one-click operational report with KPI summary and delay breakdown by IATA code. Formatted for shift handovers and management briefings.
 
 ---
 
-## 🚀 Quick Start
+## Technical decisions worth noting
 
-### Prerequisites
+**Filter isolation between ops and delays data.** The delay severity slider and IATA code filter only apply to `delays_df` (flights with a delay event). Applying them to `ops_df` silently drops all on-time flights because `pandas` evaluates `NaN >= 0` as `False` — every non-delayed flight has `delay_impact = NaN` and disappears from the filtered set, producing a 100% delay rate. The fix is a separate `ops_filters` dict that strips those keys before `apply_filters()` touches `ops_df`.
 
-- Python 3.8+
-- pip
+```python
+# NaN-safe severity filter — preserves on-time flights
+filtered = filtered[(numeric.isna()) | ((numeric >= lo) & (numeric <= hi))]
 
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/aerops-ai.git
-cd aerops-ai
-
-# Create virtual environment
-python -m venv venv
-
-# Activate
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
+# ops_df and delays_df get different filter dicts
+ops_filters = {k: v for k, v in filters.items() if k not in ('delay_code', 'severity_range')}
+filtered_ops = apply_filters(ops_df, ops_filters)
+filtered_delays = apply_filters(delays_df, filters)
 ```
 
-### Launch
+**CSV caching.** The demo dataset is ~54,000 rows. Without `@st.cache_data`, every sidebar interaction triggers a full disk read — the page appears frozen. With caching, the CSV is loaded once per session and all filter changes are pure in-memory pandas operations.
+
+**AI alerts from data, not LLMs.** The alert generation runs against the filtered dataset so results stay contextual to what the user is looking at. No external API calls, no hallucinated recommendations — every alert has a traceable source in the data (delay counts, tail numbers, crew frequencies).
+
+**Session state reset.** Sidebar widgets use stable `key=` strings. The reset button sets `st.session_state.reset_trigger = True`, which on next render assigns default values to all widget keys — including the slider (`severity_key`) and dropdown (`delay_code_key`) — before the widgets render, ensuring a clean state without widget orphaning.
+
+---
+
+## Data model
+
+The platform runs on a single denormalized ops CSV. All analytics derive from this schema:
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `flight_id` | str | Unique per operation |
+| `flight_number` | str | Marketing number (AA1234) |
+| `tail_number` | str | Aircraft registration — used for MRO alerts |
+| `crew` | str | Captain — used for fatigue risk and OTP scoring |
+| `aircraft_type` | str | B737-800, A320neo, A321, B777-300ER, A220-300, E175 |
+| `route` | str | IATA city-pair (JFK-LAX) |
+| `status` | str | On Time / Delayed / Cancelled / In Progress |
+| `scheduled_date` | datetime | Used for all time-period filters |
+| `delay_code` | str | IATA category — Weather / ATC / Aircraft Tech / Crew / Ground Handling / Passenger |
+| `delay_impact` | int | Minutes — NaN for non-delayed flights |
+| `root_cause` | str | Free-text reason (e.g. "FOD on runway", "MEL item 29-10") |
+| `actual_duration` | int | Block time in minutes |
+
+Demo data: 90 days, 52 routes, ~600 flights/day on weekdays (~54,000 total), realistic delay distributions by route type and time of day.
+
+---
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Dashboard | Streamlit 1.28+ |
+| Data | Pandas 2.0+, NumPy |
+| Charts | Plotly 5.15+ |
+| PDF export | FPDF2 2.7+ |
+| Excel export | openpyxl 3.1+ |
+| Styling | Custom CSS, Font Awesome 6.4 |
+
+---
+
+## Setup
 
 ```bash
+git clone https://github.com/yourusername/aerops-ai.git
+cd aerops-ai
+python -m venv venv && source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 streamlit run dashboard/streamlit_app.py
 ```
 
-Opens at **http://localhost:8501**
+On first launch the app generates the demo dataset (~54k flights). Subsequent loads use the cached CSV. To regenerate, use the **Regenerate Demo Data** button in the sidebar or delete `flight_operations.csv`.
 
-On first launch, the platform auto-generates ~54,000 realistic flight records (52 routes, 90 days, 600+ flights/day). Subsequent launches load from the cached CSV instantly.
-
----
-
-## 🏗️ Architecture
-
-```
-aerops-ai/
-├── dashboard/
-│   └── streamlit_app.py     # Main application (single-file, ~1500 lines)
-├── data/                    # Persistent data store (CSV auto-generated)
-├── assets/                  # Screenshots, logos
-├── exports/                 # Generated PDF/Excel reports (gitignored)
-├── models/                  # Saved ML model artifacts (gitignored)
-├── src/                     # Future: extraction of core modules
-├── requirements.txt
-├── .env.example
-├── .gitignore
-└── LICENSE
-```
-
-### Application Layers
-
-```
-┌─────────────────────────────────────────────────────┐
-│  PRESENTATION        Streamlit + Custom CSS          │
-│  Dark cockpit theme, Font Awesome icons, Plotly      │
-├─────────────────────────────────────────────────────┤
-│  FILTER ENGINE       apply_filters() + session state │
-│  NaN-safe severity filter, isolated ops vs delay     │
-│  filter dicts, widget-key-based reset mechanism      │
-├─────────────────────────────────────────────────────┤
-│  ANALYTICS           Pandas + NumPy + Plotly         │
-│  OTP calculations, crew scoring, route aggregations  │
-│  AI alert generation from real operational patterns  │
-├─────────────────────────────────────────────────────┤
-│  DATA LAYER          CSV-backed, Pandas DataFrames   │
-│  @st.cache_data, 54k+ records, realistic distributions│
-└─────────────────────────────────────────────────────┘
-```
-
-### Key Engineering Decisions
-
-**Filter isolation**: `ops_df` and `delays_df` use separate filter dicts. Applying `severity_range` to `ops_df` silently drops all non-delayed flights (because `NaN >= 0 == False` in pandas), causing a 100% delay rate bug. The fix strips `delay_code` and `severity_range` from the ops filter dict.
-
-**NaN-safe severity filter**:
-```python
-# Keep on-time flights (delay_impact = NaN) AND delayed flights in range
-filtered = filtered[(numeric.isna()) | ((numeric >= lo) & (numeric <= hi))]
-```
-
-**Session state reset**: Each sidebar widget uses a stable `key=`. The reset button sets `st.session_state.reset_trigger = True`, which on next render assigns default values to all widget keys (including `severity_key` and `delay_code_key`) before the widgets render.
+To use real data, upload a CSV via the sidebar file uploader — any CSV matching the schema above works.
 
 ---
 
-## 📋 Data Schema
+## Deployment
 
-### Flight Operations (`ops_df`)
+**Streamlit Cloud (free)**
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `flight_id` | str | Unique identifier (FLT00001) |
-| `flight_number` | str | Marketing flight number (AA1234) |
-| `tail_number` | str | Aircraft registration (N001AA) |
-| `crew` | str | Captain name |
-| `aircraft_type` | str | Aircraft type (B737-800, A320neo, etc.) |
-| `route` | str | Origin-Destination pair (JFK-LAX) |
-| `status` | str | On Time / Delayed / Cancelled / In Progress |
-| `scheduled_date` | datetime | Scheduled departure |
-| `actual_duration` | int | Block time in minutes |
+Push to a public GitHub repo, connect at [share.streamlit.io](https://share.streamlit.io), set the main file to `dashboard/streamlit_app.py`.
 
-### Delay Events (`delays_df`)
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `delay_code` | str | IATA delay category |
-| `delay_impact` | int | Delay in minutes |
-| `root_cause` | str | Specific delay reason |
-
-### IATA Delay Codes
-
-| Code | Category | Common Causes |
-|------|----------|---------------|
-| Weather | Meteorological | Thunderstorms, fog, snow, wind |
-| ATC | Air Traffic Control | Flow control, congestion, EDCT |
-| Aircraft Tech | Maintenance | MEL items, AOG, unscheduled MX |
-| Crew | Crew Resource | Rest violations, late inbound, sick call |
-| Ground Handling | Station | Baggage, fueling, catering, de-ice |
-| Passenger | Cabin/Gate | Late boarding, security, WCHR |
-
----
-
-## 🔧 Configuration
-
-### Sidebar Filters
-
-| Filter | Description |
-|--------|-------------|
-| Time Period | Last 24H / 7D / 30D / All Time |
-| Aircraft Type | Filter by fleet type |
-| Crew Member | Filter by captain |
-| Route | Filter by city-pair |
-| Flight Status | On Time / Delayed / Cancelled / In Progress |
-| Delay Category | IATA delay code filter |
-| Delay Impact | Slider: 0–180 minutes |
-
-All filters are independently resettable via the **Reset Filters** button.
-
-### Environment Variables
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
-# Optional: OpenAI for enhanced AI recommendations
-OPENAI_API_KEY=sk-your-key-here
-
-# Optional: OpenWeatherMap for live weather delay correlation
-WEATHER_API_KEY=your-weather-api-key
-```
-
----
-
-## 🚀 Deployment
-
-### Streamlit Cloud (Recommended — Free)
-
-1. Push to GitHub (public repo)
-2. Go to [share.streamlit.io](https://share.streamlit.io)
-3. Connect repo → set main file to `dashboard/streamlit_app.py`
-4. Deploy
-
-### Docker
+**Docker**
 
 ```dockerfile
 FROM python:3.11-slim
@@ -258,71 +122,25 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 EXPOSE 8501
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
-CMD ["streamlit", "run", "dashboard/streamlit_app.py", \
-     "--server.address=0.0.0.0", "--server.port=8501"]
-```
-
-```bash
-docker build -t aerops-ai .
-docker run -p 8501:8501 aerops-ai
+CMD ["streamlit", "run", "dashboard/streamlit_app.py", "--server.address=0.0.0.0"]
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Roadmap
 
-| Component | Technology |
-|-----------|-----------|
-| Dashboard | Streamlit 1.28+ |
-| Data Processing | Pandas 2.0+, NumPy |
-| Visualization | Plotly 5.15+ |
-| PDF Export | FPDF2 2.7+ |
-| Excel Export | openpyxl 3.1+ |
-| Styling | Custom CSS, Font Awesome 6.4 |
-
----
-
-## 📈 Roadmap
-
-### Done ✅
-- [x] Real-time OTP monitoring (54k+ flights)
-- [x] IATA delay code analysis with drill-down
-- [x] Crew performance tracking with heatmaps
-- [x] Route analytics across 52 city-pairs
-- [x] AI-generated alerts from operational patterns
-- [x] PDF report generation
-- [x] Dark cockpit UI theme
-- [x] NaN-safe filter engine with full reset
-
-### Planned 🗓️
-- [ ] Live weather API integration for delay forecasting
-- [ ] NOTAM feed correlation
-- [ ] Slack/Teams webhook for critical alerts
+- [ ] Live weather API correlation (OpenWeatherMap / Aviation Weather Center)
+- [ ] NOTAM feed parsing for proactive route risk scoring
+- [ ] Slack / Teams webhook for critical delay alerts
+- [ ] SQLite backend to replace CSV for multi-session persistence
 - [ ] Multi-airline tenant support
-- [ ] Mobile OCC view
 
 ---
 
-## 🤝 Contributing
+## License
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit: `git commit -m 'Add weather delay correlation'`
-4. Push: `git push origin feature/your-feature`
-5. Open a Pull Request
+[MIT](LICENSE)
 
 ---
 
-## 📄 License
-
-[MIT](LICENSE) © 2026
-
-Built for the aviation community. Ensure compliance with your airline's data governance policy before connecting to live operational data.
-
----
-
-<p align="center">
-  <a href="https://github.com/yourusername/aerops-ai/issues">Report Bug</a> •
-  <a href="https://github.com/yourusername/aerops-ai/issues">Request Feature</a>
-</p>
-<p align="center"><sub>✈️ Built for operations professionals, by someone who cares about the details.</sub></p>
+*Data privacy note: the platform ships with synthetic demo data only. If connecting to live operational data, ensure compliance with your airline's data governance and GDPR/DPA requirements before deployment.*

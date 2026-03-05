@@ -785,8 +785,7 @@ def render_crew_performance(ops_df, filters):
     if ops_df is None or ops_df.empty:
         st.info("No operations data available.")
         return
-    ops_filters = {k: v for k, v in filters.items() if k not in ('delay_code', 'severity_range')}
-    filtered = apply_filters(ops_df, ops_filters)
+    filtered = ops_df
 
     col1, col2, col3, col4 = st.columns(4)
     total_crew = filtered["crew"].nunique() if "crew" in filtered.columns else 0
@@ -851,8 +850,7 @@ def render_route_insights(ops_df, filters):
     if ops_df is None or ops_df.empty:
         st.info("No operations data available.")
         return
-    ops_filters = {k: v for k, v in filters.items() if k not in ('delay_code', 'severity_range')}
-    filtered = apply_filters(ops_df, ops_filters)
+    filtered = ops_df
     if filtered is None or filtered.empty:
         st.info("No routes match your current filters.")
         return
@@ -1147,13 +1145,15 @@ def generate_realistic_aviation_data():
 # -------------------------
 def generate_ai_alerts(ops_df: pd.DataFrame, delays_df: pd.DataFrame) -> pd.DataFrame:
     """Generate predictive operational alerts from recent delay patterns."""
-    if ops_df is None or ops_df.empty or delays_df is None or delays_df.empty:
+    if ops_df is None or ops_df.empty:
         return pd.DataFrame()
+    if delays_df is None or delays_df.empty:
+        delays_df = pd.DataFrame()
 
     alerts = []
     alert_id = 1
 
-    # Alert 1: Routes with high delay rate (last 30 days)
+    # Alert 1: Routes with high delay rate (uses ops_df for full picture, respects date filter via filtered input)
     recent_cutoff = pd.Timestamp.now() - pd.Timedelta(days=30)
     ops_recent = ops_df.copy()
     if 'scheduled_date' in ops_recent.columns:
@@ -1297,18 +1297,25 @@ def main():
 
     uploaded_file = st.sidebar.file_uploader("Upload Flight Data CSV (optional)", type=['csv'])
 
+    @st.cache_data(show_spinner=False)
+    def _load_csv(path: str) -> pd.DataFrame:
+        df = pd.read_csv(path)
+        for col in ['scheduled_date', 'delay_reported', 'created_at']:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col], errors='coerce')
+        return df
+
     if uploaded_file is not None:
         ops_df = pd.read_csv(uploaded_file)
+        for col in ['scheduled_date', 'delay_reported', 'created_at']:
+            if col in ops_df.columns:
+                ops_df[col] = pd.to_datetime(ops_df[col], errors='coerce')
         source_name = uploaded_file.name
         st.sidebar.success(f"📤 Loaded: {source_name}")
     else:
-        ops_df = pd.read_csv(default_csv_path)
+        ops_df = _load_csv(default_csv_path)
         source_name = "Live Operations Feed (90 Days)"
         st.sidebar.info("📡 Connected to demo ops feed")
-
-    for col in ['scheduled_date', 'delay_reported', 'created_at']:
-        if col in ops_df.columns:
-            ops_df[col] = pd.to_datetime(ops_df[col], errors='coerce')
 
     delays_df = pd.DataFrame()
     if 'status' in ops_df.columns:
@@ -1316,16 +1323,16 @@ def main():
     elif 'delay_code' in ops_df.columns:
         delays_df = ops_df[ops_df['delay_code'].notna() & (ops_df['delay_code'] != '') & (ops_df['delay_code'] != 'None')].copy()
 
-    suggestions_df = generate_ai_alerts(ops_df, delays_df)
-
     filters = render_sidebar(ops_df)
 
-    # IMPORTANT: ops_df must NOT be filtered by delay_code or severity_range.
-    # Those filters only apply to delays_df. Applying severity_range to ops_df
-    # silently removes all on-time flights (delay_impact = NaN), causing 100% delay rate.
+    # ops_df must NOT be filtered by delay_code or severity_range — those only apply to delays_df.
+    # Applying severity_range to ops_df drops all non-delayed flights (NaN >= 0 == False in pandas).
     ops_filters = {k: v for k, v in filters.items() if k not in ('delay_code', 'severity_range')}
     filtered_ops = apply_filters(ops_df, ops_filters)
     filtered_delays = apply_filters(delays_df, filters) if not delays_df.empty else delays_df
+
+    # AI alerts generated after filtering so they reflect the current operational context
+    suggestions_df = generate_ai_alerts(filtered_ops, filtered_delays)
 
     # Metrics
     on_time_count = int((filtered_ops["status"] == "On Time").sum()) if "status" in filtered_ops.columns else 0
