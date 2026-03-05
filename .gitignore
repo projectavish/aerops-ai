@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+
+# Environment variables
+.env
+
+# Generated data (auto-regenerates on startup)
+*.csv
+*.db
+*.sqlite
+
+# Generated reports and exports
+exports/*.pdf
+exports/*.xlsx
+
+# ML models (large binary files)
+models/*.pkl
+models/*.joblib
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Claude Code internal
+.claude/
