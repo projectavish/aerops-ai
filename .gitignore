@@ -13,9 +13,15 @@ pip-log.txt
 .env
 
 # Generated data (auto-regenerates on startup)
-*.csv
+data/bts/*.csv
+data/flight_ops.db
+flight_operations.csv
 *.db
 *.sqlite
+
+# Keep committed reference data
+!data/airports.csv
+!data/iata_delay_codes.json
 
 # Generated reports and exports
 exports/*.pdf
@@ -24,6 +30,7 @@ exports/*.xlsx
 # ML models (large binary files)
 models/*.pkl
 models/*.joblib
+models/feature_columns.json
 
 # IDE
 .vscode/
