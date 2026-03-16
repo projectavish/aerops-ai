@@ -1,119 +1,169 @@
 
-╔══════════════════════════════════════════════════════════════════╗
-║                    WHAT IS AEROPS AI?                           ║
-╚══════════════════════════════════════════════════════════════════╝
+================================================================
+           AEROPS AI v2.0 - PROJECT EXPLANATION
+     Aviation Operations Intelligence Platform
+================================================================
 
-🏢 INDUSTRY CONTEXT:
--------------------
-This is an ENTERPRISE-GRADE AVIATION OPERATIONS PLATFORM designed for:
+WHAT MAKES THIS DIFFERENT FROM OTHER PORTFOLIO PROJECTS
+========================================================
 
-1. AIRLINES (Commercial Operators)
-   - Operations Control Centers (OCC)
-   - Crew Scheduling Departments  
-   - Station Managers at hubs
-   - Director of Operations
+Most data science portfolios show Kaggle notebooks or Titanic
+predictions. AerOps AI is a COMPLETE PRODUCT:
 
-2. MROs (Maintenance Repair Overhaul)
-   - Maintenance controllers tracking AOG (Aircraft on Ground) events
-   - Predictive maintenance based on delay patterns
-   - Technical delay root cause analysis
+  1. REAL DATA - Not fake. BTS Transtats (US DOT), live METAR
+     weather, FAA airport status. Millions of real flights.
 
-3. GROUND HANDLERS
-   - Ground operations managers
-   - Turnaround time optimization
-   - Delay attribution analysis
+  2. FULL PIPELINE - Ingestion > Storage > Feature Engineering >
+     ML Training > Prediction Serving > Interactive Dashboard.
+     Every step automated with CLI scripts.
 
-🎯 CORE PURPOSE:
-----------------
-Transform raw flight data into predictive operational intelligence to:
+  3. INDUSTRY STANDARDS - IATA AHM 730 delay codes (66 real codes),
+     not made-up categories. Shows you understand the domain.
 
-BEFORE: Airlines use Excel + manual delay coding (reactive)
-AFTER:  Real-time AI dashboard with predictive alerts (proactive)
+  4. PRODUCTION ENGINEERING - Modular architecture (15+ modules),
+     SQLite with proper indexing, 19 automated tests, API caching
+     with TTL, graceful error handling throughout.
 
-💡 BUSINESS VALUE:
-------------------
-• Problem: A 60-minute delay costs $10,000+ in fuel, crew, and passenger compensation
-• Solution: Predict delays 4 hours before departure → Mitigate early
-• ROI: $2M+ annual savings for a 50-aircraft fleet
+  5. SOLVES A REAL PROBLEM - Airlines lose $25B+/year to delays.
+     This platform predicts them before they happen using weather,
+     historical patterns, and route-level risk factors.
 
-🛠️ TECHNICAL ARCHITECTURE:
----------------------------
-LAYER 1: DATA INGESTION
-   - Accepts CSV flight operations data
-   - Auto-generates 500 realistic demo flights if no data provided
-   - Columns: flight_id, tail_number, crew, route, delay_code, etc.
 
-LAYER 2: PROCESSING ENGINE
-   - Pandas for data manipulation
-   - DateTime filtering (Last 24H, 7D, 30D, All Time)
-   - Multi-dimensional filtering (Aircraft + Crew + Route + Status)
+THE PROBLEM (WHY THIS MATTERS)
+==============================
 
-LAYER 3: ANALYTICS ENGINE
-   - OTP (On-Time Performance) calculation: (On-Time Flights / Total) × 100
-   - Delay impact analysis using IATA standard codes
-   - Crew performance scoring by individual captain
-   - Route health metrics by city-pair
+Aviation delay management is a $25B+ problem:
 
-LAYER 4: VISUALIZATION LAYER
-   - Plotly for interactive charts (trend lines, pie charts, heatmaps)
-   - 6 KPI metric cards (Total Flights, OTP, Delays, etc.)
-   - 5 analysis tabs (Delay Analysis, AI Alerts, Crew, Routes, Summary)
-   - Dark "cockpit" theme optimized for 24/7 operations centers
+  - A 60-minute delay costs $10,000+ (fuel, crew overtime,
+    passenger compensation under EU261)
+  - Operations teams use Excel and react AFTER delays cascade
+  - Weather disruptions at one airport propagate through the
+    entire network within hours
 
-LAYER 5: EXPORT LAYER
-   - FPDF2 for professional PDF report generation
-   - Reports include: Executive summary, delay tables, crew performance
-   - One-click export for management briefings
+Ireland context: Dublin Airport (DUB) handled 32M+ passengers in
+2024. Ryanair (Dublin HQ), Aer Lingus, and CityJet all face these
+challenges. Shannon, Cork, and Knock airports feed regional routes.
+The aviation sector employs 42,000+ people in Ireland.
 
-📊 KEY METRICS EXPLAINED:
--------------------------
-• OTP (On-Time Performance): Industry standard metric, target >80%
-• Critical Delays: >60 minutes (passenger compensation threshold in EU)
-• Delay Codes (IATA):
-  - Weather: Acts of nature
-  - ATC: Air traffic control flow constraints
-  - Aircraft Tech: Mechanical issues
-  - Crew: Staffing/rest violations
-  - Ground Handling: Baggage/catering/fueling
-  - Passenger: Security/late boarding
 
-🎨 DESIGN PHILOSOPHY:
---------------------
-"Cockpit Dark" Theme:
-- Dark blue/slate background (#0f172a) - reduces eye strain in dim OCC
-- Cyan accents (#38bdf8) - aviation instrument panel aesthetic
-- Monospace fonts (JetBrains Mono) - flight data readability
-- Red/Yellow/Green severity badges - universal aviation color coding
+TECHNICAL ARCHITECTURE
+======================
 
-🚀 COMPETITIVE ADVANTAGE:
---------------------------
- vs. Generic BI Tools (Tableau, PowerBI):
-   ✅ Pre-built aviation logic (IATA codes, OTP calculations)
-   ✅ Aviation-specific visualizations (tail number tracking)
-   ✅ Crew performance analytics (not available in generic tools)
-   ✅ Dark theme optimized for dispatch environments
+Layer 1: DATA INGESTION
+   - BTS Transtats CSV parser with column mapping and validation
+   - AWC METAR API client (Aviation Weather Center, no auth required)
+   - FAA airport status API client with 15-minute cache
+   - OurAirports reference data (4,553 airports with ICAO/IATA)
+   - Demo data generator matching BTS schema (plug-and-play)
 
- vs. Airline Legacy Systems:
-   ✅ Modern Python/ML stack (extensible)
-   ✅ Open source (no vendor lock-in)
-   ✅ Rapid deployment (hours vs. months)
-   ✅ PDF export (compliance reporting)
+Layer 2: STORAGE (SQLite)
+   - flights table: 37 columns, indexed on date/route/airline
+   - airports table: IATA/ICAO lookup for weather API calls
+   - weather_observations: METAR cache with 30-min TTL
+   - airport_status_cache: FAA status with 15-min TTL
+   - iata_delay_codes: 66 AHM 730 reference codes
+   - predictions: ML prediction audit trail
 
-👤 TARGET USERS:
-----------------
-1. Operations Controllers: Real-time flight monitoring
-2. Crew Schedulers: Performance-based pairing optimization
-3. Maintenance Controllers: Tech delay correlation by tail number
-4. Station Managers: Hub delay analysis and reporting
-5. Executives: OTP trends and network health summaries
+Layer 3: ML PIPELINE
+   - 18 engineered features (temporal, flight, historical, cyclical)
+   - Target encoding for high-cardinality airports/airlines
+   - Cyclical encoding for hour/month (sin/cos transform)
+   - GradientBoostingClassifier: P(delay > 15 min)
+   - GradientBoostingRegressor: estimated delay minutes
+   - Temporal train/test split (prevents data leakage)
+   - Performance: 77% accuracy, 0.70 AUC-ROC
 
-💼 FOR YOUR JOB SEARCH:
------------------------
-This demonstrates:
-✅ Domain Expertise: Deep understanding of aviation operations, IATA standards, OTP metrics
-✅ Technical Skills: Python, Streamlit, Plotly, Pandas, FPDF, Data Visualization
-✅ Business Acumen: ROI calculation, operational efficiency, cost savings quantification
-✅ Problem Solving: Transforming Excel-based workflows into AI-powered automation
-✅ Production Readiness: Error handling, PDF export, responsive UI, professional documentation
+Layer 4: ANALYTICS
+   - OTP calculation excluding cancelled flights
+   - IATA delay code mapping (BTS cause -> IATA standard)
+   - Responsibility attribution (Airline/ATC/Weather/Airport)
+   - Data-driven alerts (route congestion, weather spikes, cascades)
 
-Positioning: "Aviation Operations Data Scientist" or "Airline Business Intelligence Engineer"
+Layer 5: VISUALIZATION (Streamlit + Plotly)
+   - 6 interactive tabs with 15+ chart types
+   - ML prediction interface with probability gauge
+   - Live weather cards with flight category color coding
+   - Root cause drill-down with airport-level analysis
+   - PDF export for management briefings
+
+
+KEY METRICS EXPLAINED
+=====================
+
+OTP (On-Time Performance):
+  (Non-delayed flights / Total non-cancelled flights) x 100
+  Industry target: >80%. BTS standard: delayed = arr_delay > 15min
+
+IATA Delay Codes (AHM 730):
+  71 = Departure station weather
+  81 = ATC en-route flow restriction
+  93 = Late arriving aircraft (rotation)
+  96 = Operations control (re-routing)
+  85 = Airport security delay
+
+BTS Delay Attribution:
+  CarrierDelay    -> IATA 96 (Airline responsibility)
+  WeatherDelay    -> IATA 71 (Weather)
+  NASDelay        -> IATA 81 (ATC/National Airspace)
+  SecurityDelay   -> IATA 85 (Airport security)
+  LateAircraftDelay -> IATA 93 (Aircraft rotation cascade)
+
+
+SKILLS DEMONSTRATED
+===================
+
+For Data Analyst roles:
+  - SQL database design with proper schema and indexing
+  - Multi-dimensional KPI calculation (OTP, delay rate, attribution)
+  - Interactive dashboards with drill-down capability
+  - PDF reporting for stakeholders
+  - Domain expertise in aviation operations
+
+For Data Scientist roles:
+  - End-to-end ML pipeline (feature engineering to serving)
+  - GradientBoosting with proper evaluation (AUC, precision, recall)
+  - Temporal train/test split (no data leakage)
+  - Feature importance analysis
+  - Target encoding for categorical features
+  - Cyclical feature encoding
+
+For Data Engineer roles:
+  - ETL pipeline (CSV ingestion, transformation, loading)
+  - API integration with caching and error handling
+  - Database schema design with migrations
+  - CLI tooling for reproducible workflows
+  - Modular Python package architecture
+
+For Product/Business roles:
+  - Solves a real $25B industry problem
+  - Plug-and-play setup (3 commands to run)
+  - Professional UI/UX design
+  - Clear documentation and README
+  - Test coverage demonstrating quality
+
+
+POSITIONING FOR IRELAND JOB MARKET
+===================================
+
+Target roles:
+  - Data Analyst / Senior Data Analyst (Aviation)
+  - Data Scientist (Operations Research / Predictive Analytics)
+  - Business Intelligence Analyst (Aviation / Transport)
+  - Analytics Engineer
+
+Target companies in Ireland:
+  - Ryanair (Dublin) - Europe's largest airline
+  - Aer Lingus / IAG (Dublin) - Flag carrier
+  - daa (Dublin Airport Authority)
+  - Shannon Group
+  - Datalex (Dublin) - Aviation tech
+  - SITA (Aviation IT, offices in Ireland)
+  - Accenture/Deloitte aviation consulting
+
+What sets you apart:
+  1. You didn't just analyze data - you built a PRODUCT
+  2. Real data, real APIs, real industry standards
+  3. Full pipeline from ingestion to ML to dashboard
+  4. Automated tests show engineering discipline
+  5. Domain knowledge (IATA codes, METAR, BTS) not just Python skills
+  6. Modern tech stack (not just Excel/PowerBI)

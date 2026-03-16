@@ -1,42 +1,53 @@
-✈️ NEW PROJECT LAUNCH: AerOps AI
+NEW PROJECT: AerOps AI v2.0 - Aviation Delay Prediction Platform
 
-After 10 years in aviation operations, I know firsthand that delays are the industry's billion-dollar headache. That's why I built AerOps AI—a production-ready intelligence platform that predicts delays before they happen.
+Airlines lose $25B+ annually to flight delays. Most operations teams still use Excel and react AFTER the cascade has started.
 
-🎯 THE PROBLEM
-In aviation, a 60-minute delay doesn't just cost $10K in fuel and crew—it cascades through the entire network. But most airlines are still using Excel spreadsheets to track delays reactively.
+So I built an end-to-end intelligence platform that predicts delays before they happen.
 
-🔧 THE SOLUTION
-AerOps AI transforms raw flight data into predictive intelligence:
+THE PROBLEM
+A 60-minute delay doesn't just cost $10K in fuel and crew. Under EU261, it triggers passenger compensation. It cascades through the network. And by the time it's reported, it's too late.
 
-• 📊 Real-time OTP (On-Time Performance) monitoring by route, crew, and tail number
-• 🤖 ML-powered delay prediction using IATA standard codes (Weather, ATC, Tech, Crew)
-• 👨‍✈️ Crew performance analytics—identify training needs before they impact operations
-• ⚡ Automated root cause analysis (no more manual delay coding)
-• 📄 One-click PDF reports for FAA/EASA compliance
+WHAT I BUILT (Full Data Science Pipeline)
 
-🛠️ BUILT WITH
-Python | Streamlit | Plotly | Scikit-Learn | FPDF2
+1. DATA INGESTION
+   - Real US DOT flight data (BTS Transtats - millions of flights)
+   - Live aviation weather (METAR/TAF from Aviation Weather Center)
+   - FAA airport delay status API
+   - 4,553 airports from OurAirports
 
-The platform includes a "cockpit-dark" UI designed for 24/7 operations centers, with aviation-specific visualizations like delay heatmaps and route health scores.
+2. DATABASE + FEATURE ENGINEERING
+   - SQLite with indexed schema (flights, weather cache, IATA codes)
+   - 18 engineered features: cyclical time encoding, target-encoded airports, historical delay rates
+   - Proper IATA AHM 730 delay codes (66 real codes, not made-up categories)
 
-💡 WHY THIS MATTERS
-This isn't just a dashboard—it's a decision-support system:
-→ Reduce delays by 25% through early intervention
-→ Improve OTP by 15% via crew optimization  
-→ Save $2M+ annually for a 50-aircraft fleet
+3. ML PREDICTION MODEL
+   - GradientBoosting classifier + regressor
+   - 77% accuracy, 0.70 AUC-ROC on held-out test set
+   - Temporal train/test split (no data leakage)
+   - Top feature: route historical delay rate (29% importance)
 
-🔍 TECHNICAL HIGHLIGHTS
-• Processes 500+ flights with sub-second filtering
-• Predictive models trained on IATA delay categories
-• Professional PDF reporting for executive briefings
-• Dark-mode UI optimized for dispatch environments
+4. INTERACTIVE DASHBOARD (6 tabs)
+   - Delay analysis with IATA code distribution
+   - ML prediction: pick a route, get delay probability
+   - Live ops center with METAR weather cards
+   - Root cause analytics with responsibility attribution
+   - Airline & fleet performance leaderboards
+   - Route analytics with distance vs delay correlation
 
-The code is production-ready and includes demo data spanning B737, A320, B777 fleets across major international routes.
+5. PRODUCTION ENGINEERING
+   - Modular architecture (15+ Python modules)
+   - 19 automated tests (pytest)
+   - CLI scripts for reproducible workflows
+   - PDF export for stakeholders
 
-📂 Open source and ready for aviation tech teams to implement.
+TECH STACK
+Python | Streamlit | Plotly | scikit-learn | SQLite | Pandas | METAR API | BTS Data
 
-What delay patterns does your operation struggle with most? Let's discuss in the comments.
+WHY THIS MATTERS
+This isn't a Kaggle notebook or a Titanic prediction. It's a complete product with real data, real APIs, real industry standards, and a real ML pipeline. Plug and play - 3 commands to run.
 
-#Aviation #Operations #DataScience #MachineLearning #Airlines #OTP #DelayManagement #Python #Streamlit #AviationTech #AerOps #PredictiveAnalytics #FlightOperations #CrewResourceManagement
+Open source: github.com/projectavish/aerops-ai
 
-P.S. This project demonstrates how domain expertise (aviation) + technical skills (ML/AI) = real operational value. If you're hiring for aviation data roles, let's talk.
+Currently seeking Data Analyst / Data Scientist roles in Ireland. If your team needs someone who builds complete solutions, not just models, let's connect.
+
+#DataScience #Aviation #MachineLearning #Python #DataAnalytics #Ireland #OpenToWork #FlightDelays #PredictiveAnalytics #IATA #Streamlit #DataEngineering
