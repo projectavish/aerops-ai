@@ -4,7 +4,7 @@ import logging
 import streamlit as st
 import pandas as pd
 
-from aerops.config import CHART_LAYOUT, TOP_AIRPORTS
+from aerops.config import TOP_AIRPORTS
 from aerops.data.weather_api import fetch_metar_batch
 from aerops.data.faa_status import get_cached_or_fetch as get_faa_status
 from aerops.data.airports import get_iata_to_icao
@@ -190,7 +190,6 @@ def _render_faa_card(iata: str, data: dict) -> None:
     # Handle both raw API format and cached DB format
     has_delay = False
     delay_reason = ""
-    name = iata
 
     if "Delay" in data:
         has_delay = str(data["Delay"]).lower() == "true"
@@ -206,9 +205,6 @@ def _render_faa_card(iata: str, data: dict) -> None:
             delay_reason = status_list.get("Reason", "")
     elif "delay_reason" in data:
         delay_reason = data.get("delay_reason", "")
-
-    if "Name" in data:
-        name = data["Name"]
 
     border_color = "#ef4444" if has_delay else "#22c55e"
     status_text = "DELAY" if has_delay else "NORMAL"

@@ -4,14 +4,12 @@ from __future__ import annotations
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 from aerops.config import CHART_LAYOUT
 from aerops.analytics.eu261 import (
     calculate_eu261_compensation,
     calculate_fleet_eu261_exposure,
     calculate_operational_cost,
-    COMPENSATION_TIERS,
 )
 
 

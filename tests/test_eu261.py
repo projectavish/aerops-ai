@@ -1,7 +1,6 @@
 """Tests for EU261 compensation calculator."""
 import pandas as pd
 import numpy as np
-import pytest
 
 from aerops.analytics.eu261 import (
     calculate_eu261_compensation,

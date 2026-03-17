@@ -1,7 +1,5 @@
 """Tests for turnaround time analysis."""
 import pandas as pd
-import numpy as np
-import pytest
 
 from aerops.analytics.turnaround import (
     calculate_turnaround_times,

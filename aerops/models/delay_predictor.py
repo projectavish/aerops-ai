@@ -38,8 +38,6 @@ from sklearn.preprocessing import LabelEncoder
 
 from aerops.config import (
     DB_PATH,
-    DELAY_MODEL_PATH,
-    FEATURE_COLUMNS_PATH,
     MODEL_DIR,
 )
 from aerops.db import get_connection

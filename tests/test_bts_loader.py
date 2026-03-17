@@ -1,6 +1,5 @@
 """Tests for BTS data ingestion pipeline."""
-import pandas as pd
-from aerops.data.bts_loader import engineer_features, parse_bts_csv
+from aerops.data.bts_loader import engineer_features
 
 
 def test_engineer_features_adds_route(sample_bts_df):

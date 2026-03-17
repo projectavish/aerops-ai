@@ -70,7 +70,7 @@ def main() -> None:
     # Step 2: train (includes CV, calibration, PR curve)
     predictor = DelayPredictor()
     start = time.perf_counter()
-    metrics = predictor.train(DB_PATH)
+    predictor.train(DB_PATH)
     elapsed = time.perf_counter() - start
     logger.info("Training completed in %.1fs", elapsed)
 

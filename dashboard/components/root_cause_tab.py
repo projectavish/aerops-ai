@@ -7,8 +7,6 @@ import plotly.graph_objects as go
 from aerops.config import CHART_LAYOUT
 from aerops.data.iata_codes import (
     get_code_description,
-    load_iata_codes,
-    BTS_TO_IATA,
 )
 
 # BTS delay cause columns (lowercase, matching DB schema)

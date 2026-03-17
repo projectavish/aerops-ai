@@ -1,8 +1,6 @@
 """Tests for ML delay prediction model."""
 import os
-import pytest
 from aerops.data.demo_generator import generate_demo_data
-from aerops.db import init_db
 
 
 def test_model_trains_on_small_data(tmp_db):

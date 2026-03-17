@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 from aerops.config import CHART_LAYOUT
-from aerops.data.iata_codes import get_code_description, BTS_TO_IATA
+from aerops.data.iata_codes import BTS_TO_IATA
 
 
 def render_delay_analysis(delays_df: pd.DataFrame, filters: dict) -> None:

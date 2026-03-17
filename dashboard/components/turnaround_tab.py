@@ -5,7 +5,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import numpy as np
 
 from aerops.config import CHART_LAYOUT
 from aerops.analytics.turnaround import (
@@ -55,7 +54,6 @@ def render_turnaround_analysis(ops_df: pd.DataFrame) -> None:
     with cols[2]:
         st.metric("Median Ground Time", f"{kpis['median_ground_time']:.0f} min")
     with cols[3]:
-        color = "normal" if kpis["pct_under_30min"] > 50 else "inverse"
         st.metric("Under 30 min", f"{kpis['pct_under_30min']:.1f}%")
     with cols[4]:
         st.metric("Efficiency Score", f"{kpis['efficiency_score']:.0f}/100")

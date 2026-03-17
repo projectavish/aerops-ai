@@ -2,7 +2,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import numpy as np
 from pathlib import Path
 
 from aerops.config import CHART_LAYOUT, DB_PATH, DELAY_MODEL_PATH
@@ -94,7 +93,7 @@ def render_prediction(ops_df: pd.DataFrame, db_path: str = DB_PATH) -> None:
         r1, r2, r3 = st.columns(3)
         with r1:
             color = "#ef4444" if prob > 0.5 else "#eab308" if prob > 0.3 else "#22c55e"
-            st.markdown(f"### Delay Probability")
+            st.markdown("### Delay Probability")
             _render_gauge(prob, color)
         with r2:
             st.metric("Estimated Delay", f"{est_minutes:.0f} min" if prob > 0.3 else "On Time")

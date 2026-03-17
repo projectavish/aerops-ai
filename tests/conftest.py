@@ -1,6 +1,5 @@
 """Shared test fixtures."""
 import os
-import tempfile
 
 import pytest
 import pandas as pd

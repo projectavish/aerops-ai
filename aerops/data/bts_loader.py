@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from aerops.config import BTS_DELAY_COLUMNS, DB_PATH
+from aerops.config import DB_PATH
 from aerops.data.iata_codes import map_bts_cause_to_iata
 from aerops.db import get_connection, init_db
 

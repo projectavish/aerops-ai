@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from aerops.config import CHART_LAYOUT, TOP_AIRPORTS
+from aerops.config import CHART_LAYOUT
 from aerops.analytics.disruption import (
     simulate_disruption,
     identify_vulnerable_routes,
