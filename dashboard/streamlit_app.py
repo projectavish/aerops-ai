@@ -22,6 +22,9 @@ from dashboard.components.ops_center_tab import render_ops_center
 from dashboard.components.crew_tab import render_airline_performance
 from dashboard.components.route_tab import render_route_insights
 from dashboard.components.root_cause_tab import render_root_cause
+from dashboard.components.eu261_tab import render_eu261_analysis
+from dashboard.components.turnaround_tab import render_turnaround_analysis
+from dashboard.components.disruption_tab import render_disruption_analysis
 from dashboard.components.export import generate_pdf_report
 from aerops.config import DB_PATH
 from aerops.db import init_db, query_df, table_row_count
@@ -112,11 +115,14 @@ def main():
 
     st.markdown("---")
 
-    # Main tabs
+    # Main tabs (9 tabs - comprehensive aviation ops platform)
     tabs = st.tabs([
         "Delay Analysis",
         "Delay Prediction",
         "Ops Control Center",
+        "EU261 Exposure",
+        "Turnaround",
+        "Disruption Recovery",
         "Airline & Fleet",
         "Route Analytics",
         "Root Cause",
@@ -132,12 +138,21 @@ def main():
         render_ops_center(filtered_ops, DB_PATH)
 
     with tabs[3]:
-        render_airline_performance(filtered_ops, filters)
+        render_eu261_analysis(filtered_ops, filtered_delays)
 
     with tabs[4]:
-        render_route_insights(filtered_ops, filters)
+        render_turnaround_analysis(filtered_ops)
 
     with tabs[5]:
+        render_disruption_analysis(filtered_ops)
+
+    with tabs[6]:
+        render_airline_performance(filtered_ops, filters)
+
+    with tabs[7]:
+        render_route_insights(filtered_ops, filters)
+
+    with tabs[8]:
         render_root_cause(filtered_ops, filtered_delays, filters)
 
     # Footer
@@ -145,8 +160,8 @@ def main():
     st.markdown(
         '<div style="text-align:center; color:#64748b; padding:2rem 0;">'
         '<p style="font-family:JetBrains Mono,monospace; color:#38bdf8 !important;">'
-        'AeroOps AI v2.0</p>'
-        '<p style="font-size:0.8rem;">Real Data | ML Predictions | Live Weather | IATA Standard Delay Codes</p>'
+        'AeroOps AI v2.1</p>'
+        '<p style="font-size:0.8rem;">Real Data | ML Predictions | Live Weather | EU261 | Turnaround | Disruption Recovery</p>'
         '</div>',
         unsafe_allow_html=True,
     )

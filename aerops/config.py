@@ -67,5 +67,8 @@ BTS_DELAY_COLUMNS = [
     "SecurityDelay", "LateAircraftDelay",
 ]
 
-# Demo data size
-DEMO_FLIGHT_COUNT = 5000
+# Demo data size (50K for realistic analysis depth)
+DEMO_FLIGHT_COUNT = 50_000
+
+# EU261 defaults
+DEFAULT_PAX_PER_FLIGHT = 160
